@@ -1,17 +1,15 @@
 const server = Bun.serve({
   async fetch(req) {
     console.log(
-      JSON.parse(
-        JSON.stringify({
-          url: req.url,
-          method: req.method,
-          mode: req.mode,
-          headers: req.headers,
-          credentials: req.credentials,
-          destination: req.destination,
-          body: await req.text(),
-        }),
-      ),
+      JSON.stringify({
+        url: req.url,
+        method: req.method,
+        mode: req.mode,
+        headers: req.headers,
+        credentials: req.credentials,
+        destination: req.destination,
+        body: await req.text(),
+      }),
     );
     return new Response('ok');
   },
