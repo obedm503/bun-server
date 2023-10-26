@@ -17,6 +17,18 @@ function flatten(ob: any) {
 
 const server = Bun.serve({
   async fetch(req) {
+    const url = new URL(req.url);
+    if (url.pathname === '/nslookup') {
+      const domain = url.searchParams.get('domain');
+      if (!domain) {
+        return new Response('Bad Request', { status: 400 });
+      }
+
+      const spawned = Bun.spawn(['nslookup', domain]);
+      const output = await new Response(spawned.stdout).text();
+      return new Response(output);
+    }
+
     console.log(
       flatten(
         JSON.parse(
