@@ -1,3 +1,5 @@
+import { lookup } from 'node:dns/promises';
+
 function flatten(ob: any) {
   const result = {} as any;
 
@@ -18,39 +20,15 @@ function flatten(ob: any) {
 const server = Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
-    if (url.pathname === '/nslookup') {
+    if (url.pathname === '/lookup') {
       const domain = url.searchParams.get('domain');
       if (!domain) {
         return new Response('Bad Request', { status: 400 });
       }
 
-      const spawned = Bun.spawn(['nslookup', domain]);
-      const output = await new Response(spawned.stdout).text();
-      return new Response(output);
+      const addressLookup = await lookup(domain);
+      return new Response(addressLookup.address);
     }
-
-    if (url.pathname === '/host') {
-      const domain = url.searchParams.get('domain');
-      if (!domain) {
-        return new Response('Bad Request', { status: 400 });
-      }
-
-      const spawned = Bun.spawn(['host', domain]);
-      const output = await new Response(spawned.stdout).text();
-      return new Response(output);
-    }
-
-    if (url.pathname === '/dig') {
-      const domain = url.searchParams.get('domain');
-      if (!domain) {
-        return new Response('Bad Request', { status: 400 });
-      }
-
-      const spawned = Bun.spawn(['dig', domain, 'A', '+short']);
-      const output = await new Response(spawned.stdout).text();
-      return new Response(output);
-    }
-
 
     console.log(
       flatten(
