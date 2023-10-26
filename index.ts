@@ -29,6 +29,29 @@ const server = Bun.serve({
       return new Response(output);
     }
 
+    if (url.pathname === '/host') {
+      const domain = url.searchParams.get('domain');
+      if (!domain) {
+        return new Response('Bad Request', { status: 400 });
+      }
+
+      const spawned = Bun.spawn(['host', domain]);
+      const output = await new Response(spawned.stdout).text();
+      return new Response(output);
+    }
+
+    if (url.pathname === '/dig') {
+      const domain = url.searchParams.get('domain');
+      if (!domain) {
+        return new Response('Bad Request', { status: 400 });
+      }
+
+      const spawned = Bun.spawn(['dig', domain, 'A', '+short']);
+      const output = await new Response(spawned.stdout).text();
+      return new Response(output);
+    }
+
+
     console.log(
       flatten(
         JSON.parse(
